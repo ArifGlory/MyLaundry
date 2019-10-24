@@ -1,0 +1,34 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="myEditTextStyle">
+        <item name="android:colorControlNormal" tools:targetApi="lollipop">#ffffff</item>
+        <item name="android:colorControlActivated" tools:targetApi="lollipop" tools:tarnavigation_drawer_opengetApi="lollipop">
+            #ffffff
+        </item>
+        <item name="android:colorControlHighlight" tools:targetApi="lollipop">#ffffff</item>
+        <item name="android:colorAccent" tools:targetApi="lollipop">#ffffff</item>
+        <item name="android:textColorHint">#ffffff</item>
+    </style>
+
+    <style name="myEditTextStyleBlack">
+        <item name="android:colorControlNormal" tools:targetApi="lollipop">#353535</item>
+        <item name="android:colorControlActivated" tools:targetApi="lollipop">#353535</item>
+        <item name="android:colorControlHighlight" tools:targetApi="lollipop">#353535</item>
+        <item name="android:colorAccent" tools:targetApi="lollipop">#353535</item>
+        <item name="android:textColorHint">#353535</item>
+    </style>
+
+</resources>
