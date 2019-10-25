@@ -12,8 +12,12 @@
         android:theme="@style/AppTheme"
         tools:replace="android:icon">
         <activity
-            android:name=".activity.BerandaUserActivity"
-            android:label="Home">
+            android:name=".activity.BerandaPemilikActivity"
+            android:label="Pemilik Laundry"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name=".activity.SplashActivity"
+            android:theme="@style/AppTheme.NoActionBar" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -21,10 +25,16 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:name=".activity.RegisterActivity"
+            android:label="Daftar Akun" />
+        <activity
+            android:name=".activity.BerandaUserActivity"
+            android:label="Home">
 
         </activity>
+        <activity
+            android:name=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>
