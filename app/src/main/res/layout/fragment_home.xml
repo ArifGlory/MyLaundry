@@ -126,32 +126,6 @@
                         android:baselineAligned="false"
                         android:orientation="horizontal">
 
-                        <RelativeLayout
-                            android:id="@+id/rlNama"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1">
-
-                            <ImageView
-                                android:layout_width="50dp"
-                                android:layout_height="50dp"
-                                android:layout_above="@+id/tvSedotBiasa"
-                                android:layout_centerHorizontal="true"
-                                android:layout_marginBottom="5dp"
-                                android:src="@drawable/street_name" />
-
-                            <TextView
-                                android:id="@+id/tvSedotBiasa"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_alignParentBottom="true"
-                                android:layout_marginBottom="20dp"
-                                android:text="Cari by Nama"
-                                android:textAlignment="center"
-                                android:textColor="@color/grey_800"
-                                android:textSize="14sp" />
-
-                        </RelativeLayout>
 
                         <RelativeLayout
                             android:id="@+id/rlHarga"

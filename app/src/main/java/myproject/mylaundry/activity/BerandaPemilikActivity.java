@@ -4,6 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.View;
 import android.support.v4.view.GravityCompat;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -21,9 +24,12 @@ import android.widget.TextView;
 import myproject.mylaundry.Kelas.SharedVariable;
 import myproject.mylaundry.R;
 import myproject.mylaundry.base.BaseActivity;
+import myproject.mylaundry.fragment.FragmentHomePemilik;
 
 public class BerandaPemilikActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    FragmentHomePemilik fragmentHomePemilik;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +37,9 @@ public class BerandaPemilikActivity extends BaseActivity
         setContentView(R.layout.activity_beranda_pemilik);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        fragmentHomePemilik = new FragmentHomePemilik();
+        goToFragment(fragmentHomePemilik,true);
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
@@ -45,6 +54,16 @@ public class BerandaPemilikActivity extends BaseActivity
         TextView tvNama = headerView.findViewById(R.id.tvNama);
 
         tvNama.setText(SharedVariable.nama);
+    }
+
+    void goToFragment(Fragment fragment, boolean isTop) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+        fragmentTransaction.replace(R.id.fragment_homePemilik, fragment);
+        if (!isTop)
+            fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
     }
 
     @Override
@@ -88,6 +107,8 @@ public class BerandaPemilikActivity extends BaseActivity
             Intent i = new Intent(getApplicationContext(), BerandaPemilikActivity.class);
             startActivity(i);
         } else if (id == R.id.nav_add) {
+            Intent intent = new Intent(getApplicationContext(), AddLaundryActivity.class);
+            startActivity(intent);
 
         } else if (id == R.id.nav_logout) {
             fAuth.signOut();
@@ -98,5 +119,9 @@ public class BerandaPemilikActivity extends BaseActivity
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public void reloadListLaundry(){
+        fragmentHomePemilik.reloadData();
     }
 }

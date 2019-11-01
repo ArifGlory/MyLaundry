@@ -3,21 +3,30 @@ package myproject.mylaundry.base;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.firebase.client.Firebase;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.synnapps.carouselview.CarouselView;
+
+import java.util.List;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
 import es.dmoral.toasty.Toasty;
+import myproject.mylaundry.Kelas.Laundry;
+import myproject.mylaundry.adapter.AdapterLaundry;
 
 
 /**
@@ -76,6 +85,42 @@ public class BaseFragment extends Fragment {
         Toasty.info(getActivity(),message, Toast.LENGTH_SHORT,true).show();
     }
 
+    public void getDataMyLaundry(final String idPemilik, final AdapterLaundry adapterLaundry, final List<Laundry> laundryList){
+        pDialogLoading.show();
+        ref.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                pDialogLoading.dismiss();
+                laundryList.clear();
+
+                if (task.isSuccessful()){
+
+                    int size = task.getResult().size();
+                    if (size > 0){
+
+                        for (DocumentSnapshot doc : task.getResult()){
+                            String idLaundry = doc.getString("idLaundry");
+                            String idPemilikLaundry = doc.getString("idPemilik");
+                            Laundry laundry = doc.toObject(Laundry.class);
+                            laundry.setIdLaundry(idLaundry);
+
+                            if (idPemilik.equals(idPemilikLaundry)){
+                                laundryList.add(laundry);
+                            }
+
+                        }
+                        adapterLaundry.notifyDataSetChanged();
+
+                    }else{
+                        showInfoMessage("Belum ada data laundry");
+                    }
+
+                }else{
+                    showErrorMessage("Terjadi kesalahan,coba lagi nanti");
+                }
+            }
+        });
+    }
 
 
 

@@ -7,4 +7,7 @@ public class SharedVariable {
     public static String email = "";
     public static String phone = "";
     public static String alamat = "";
+    public static String keyword = "";
+    public static long maxHarga = 0;
+
 }
