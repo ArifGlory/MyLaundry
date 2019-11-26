@@ -3,8 +3,6 @@ package myproject.mylaundry.adapter;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.media.Image;
-import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,13 +11,12 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.firebase.client.Firebase;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -29,15 +26,10 @@ import java.util.List;
 import java.util.Locale;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
-import myproject.mylaundry.Kelas.Laundry;
+import myproject.mylaundry.Kelas.Fasilitas;
 import myproject.mylaundry.Kelas.SharedVariable;
 import myproject.mylaundry.R;
-import myproject.mylaundry.activity.BerandaPemilikActivity;
-import myproject.mylaundry.activity.DetailLaundryActivity;
 import myproject.mylaundry.activity.FasilitasActivity;
-import myproject.mylaundry.activity.UbahDataLaundry;
-import myproject.mylaundry.fragment.FragmentHomePemilik;
-
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
@@ -45,40 +37,37 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 /**
  * Created by Ravi Tamada on 18/05/16.
  */
-public class AdapterLaundry extends RecyclerView.Adapter<AdapterLaundry.MyViewHolder> {
+public class AdapterFasilitas extends RecyclerView.Adapter<AdapterFasilitas.MyViewHolder> {
 
     private Context mContext;
-    private List<Laundry> laundryList;
+    private List<Fasilitas> fasilitasList;
     FirebaseFirestore firestore;
     CollectionReference ref;
-    private SweetAlertDialog pDialogLoading,pDialodInfo;
+    private SweetAlertDialog pDialogLoading;
 
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
-        public TextView tvNamaLaundry,tvAlamat,tvHarga;
-        ImageView ivLaundry;
-        public LinearLayout lineLaundry;
-        public Button btnFasilitas;
+        public TextView tvNamaFasilitas,tvHarga;
+        ImageView ivFasilitas;
+        public RelativeLayout lineFasilitas;
 
         public MyViewHolder(View view) {
             super(view);
-            tvNamaLaundry = (TextView) view.findViewById(R.id.tvNamaLaundry);
-            ivLaundry = (ImageView) view.findViewById(R.id.ivLaundry);
-            tvAlamat = (TextView) view.findViewById(R.id.tvAlamat);
+            tvNamaFasilitas = (TextView) view.findViewById(R.id.tvNamaFasilitas);
+            ivFasilitas = (ImageView) view.findViewById(R.id.ivFasilitas);
             tvHarga = (TextView) view.findViewById(R.id.tvHarga);
-            lineLaundry = view.findViewById(R.id.lineLaundry);
-            btnFasilitas = view.findViewById(R.id.btnFasilitas);
+            lineFasilitas = view.findViewById(R.id.lineFasilitas);
 
         }
     }
 
-    public AdapterLaundry(Context mContext, List<Laundry> laundryList) {
+    public AdapterFasilitas(Context mContext, List<Fasilitas> fasilitasList) {
         this.mContext = mContext;
-        this.laundryList = laundryList;
+        this.fasilitasList = fasilitasList;
         Firebase.setAndroidContext(mContext);
         FirebaseApp.initializeApp(mContext);
         firestore = FirebaseFirestore.getInstance();
-        ref = firestore.collection("laundry");
+        ref = firestore.collection("fasilitas");
 
         pDialogLoading = new SweetAlertDialog(mContext, SweetAlertDialog.PROGRESS_TYPE);
         pDialogLoading.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
@@ -90,7 +79,7 @@ public class AdapterLaundry extends RecyclerView.Adapter<AdapterLaundry.MyViewHo
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_laundry, parent,false);
+                .inflate(R.layout.item_fasilitas, parent,false);
 
         return new MyViewHolder(itemView);
     }
@@ -98,60 +87,42 @@ public class AdapterLaundry extends RecyclerView.Adapter<AdapterLaundry.MyViewHo
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
 
-        if (laundryList.isEmpty()){
+        if (fasilitasList.isEmpty()){
 
-            Log.d("isiLaundry: ",""+laundryList.size());
+            Log.d("isiFasilitas: ",""+fasilitasList.size());
         }else {
 
-            final Laundry laundry = laundryList.get(position);
+            final Fasilitas fasilitas = fasilitasList.get(position);
 
-            holder.tvNamaLaundry.setText(laundry.getNamaLaundry());
-            holder.tvAlamat.setText(laundry.getAlamat());
+            holder.tvNamaFasilitas.setText(fasilitas.getNamaFasilitas());
 
             NumberFormat format = NumberFormat.getCurrencyInstance(Locale.ENGLISH);
             Locale localeID = new Locale("in", "ID");
             NumberFormat formatRupiah = NumberFormat.getCurrencyInstance(localeID);
-            Double myHarga = Double.valueOf(laundry.getHargaPerKg());
-            holder.tvHarga.setText("Harga per Kg : "+formatRupiah.format((double) myHarga));
+            Double myHarga = Double.valueOf(fasilitas.getHarga());
+            holder.tvHarga.setText("Harga : "+formatRupiah.format((double) myHarga));
 
             Glide.with(mContext)
-                    .load(laundry.getFoto())
-                    .into(holder.ivLaundry);
-            holder.btnFasilitas.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(mContext, FasilitasActivity.class);
-                    intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
-                    intent.putExtra("laundry",laundry);
-                    mContext.startActivity(intent);
-                }
-            });
+                    .load(fasilitas.getFotoFasilitas())
+                    .into(holder.ivFasilitas);
 
-            holder.lineLaundry.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(mContext, DetailLaundryActivity.class);
-                    intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
-                    intent.putExtra("laundry",laundry);
-                    mContext.startActivity(intent);
-                }
-            });
-            holder.lineLaundry.setOnLongClickListener(new View.OnLongClickListener() {
+
+            holder.lineFasilitas.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    if (laundry.getIdPemilik().equals(SharedVariable.userID)){
+                    if (fasilitas.getIdPemilik().equals(SharedVariable.userID)){
                         new SweetAlertDialog(mContext, SweetAlertDialog.WARNING_TYPE)
-                                .setTitleText("Kelola Laundry")
-                                .setContentText("Anda dapat melakukan perubahan data laundry ini")
+                                .setTitleText("Kelola Fasilitas")
+                                .setContentText("Anda dapat melakukan perubahan data Fasilitas ini")
                                 .setConfirmText("Ubah Data")
                                 .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
                                     @Override
                                     public void onClick(SweetAlertDialog sDialog) {
                                         sDialog.dismissWithAnimation();
-                                        Intent intent = new Intent(mContext, UbahDataLaundry.class);
+                                        /*Intent intent = new Intent(mContext, UbahDataFasilitas.class);
                                         intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
-                                        intent.putExtra("laundry",laundry);
-                                        mContext.startActivity(intent);
+                                        intent.putExtra("Fasilitas",Fasilitas);
+                                        mContext.startActivity(intent);*/
                                     }
                                 })
                                 .setCancelButton("Hapus", new SweetAlertDialog.OnSweetClickListener() {
@@ -159,12 +130,12 @@ public class AdapterLaundry extends RecyclerView.Adapter<AdapterLaundry.MyViewHo
                                     public void onClick(SweetAlertDialog sDialog) {
                                         sDialog.dismissWithAnimation();
                                         pDialogLoading.show();
-                                        ref.document(laundry.getIdLaundry()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        ref.document(fasilitas.getIdFasilitas()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void aVoid) {
                                                 pDialogLoading.dismiss();
-                                                if (mContext instanceof BerandaPemilikActivity){
-                                                    ((BerandaPemilikActivity)mContext).reloadListLaundry();
+                                                if (mContext instanceof FasilitasActivity){
+                                                    ((FasilitasActivity)mContext).reloadData();
                                                 }
                                             }
                                         });
@@ -178,16 +149,14 @@ public class AdapterLaundry extends RecyclerView.Adapter<AdapterLaundry.MyViewHo
                 }
             });
 
-
         }
 
     }
 
 
-
     @Override
     public int getItemCount() {
         //return namaWisata.length;
-        return laundryList.size();
+        return fasilitasList.size();
     }
 }

@@ -112,6 +112,7 @@ public class BerandaPemilikActivity extends BaseActivity
 
         } else if (id == R.id.nav_logout) {
             fAuth.signOut();
+            SharedVariable.userID = "";
             Intent i = new Intent(getApplicationContext(), BerandaUserActivity.class);
             startActivity(i);
         }

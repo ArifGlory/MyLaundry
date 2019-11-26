@@ -85,42 +85,7 @@ public class BaseFragment extends Fragment {
         Toasty.info(getActivity(),message, Toast.LENGTH_SHORT,true).show();
     }
 
-    public void getDataMyLaundry(final String idPemilik, final AdapterLaundry adapterLaundry, final List<Laundry> laundryList){
-        pDialogLoading.show();
-        ref.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                pDialogLoading.dismiss();
-                laundryList.clear();
 
-                if (task.isSuccessful()){
-
-                    int size = task.getResult().size();
-                    if (size > 0){
-
-                        for (DocumentSnapshot doc : task.getResult()){
-                            String idLaundry = doc.getString("idLaundry");
-                            String idPemilikLaundry = doc.getString("idPemilik");
-                            Laundry laundry = doc.toObject(Laundry.class);
-                            laundry.setIdLaundry(idLaundry);
-
-                            if (idPemilik.equals(idPemilikLaundry)){
-                                laundryList.add(laundry);
-                            }
-
-                        }
-                        adapterLaundry.notifyDataSetChanged();
-
-                    }else{
-                        showInfoMessage("Belum ada data laundry");
-                    }
-
-                }else{
-                    showErrorMessage("Terjadi kesalahan,coba lagi nanti");
-                }
-            }
-        });
-    }
 
 
 

@@ -16,6 +16,7 @@ import android.widget.Button;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
@@ -80,11 +81,47 @@ public class FragmentHomePemilik extends BaseFragment implements Callback {
         return view;
     }
 
+    public void getDataMyLaundry(final String idPemilik, final AdapterLaundry adapterLaundry, final List<Laundry> laundryList){
+        pDialogLoading.show();
+        ref.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                pDialogLoading.dismiss();
+                laundryList.clear();
+
+                if (task.isSuccessful()){
+
+                    int size = task.getResult().size();
+                    if (size > 0){
+
+                        for (DocumentSnapshot doc : task.getResult()){
+                            String idLaundry = doc.getString("idLaundry");
+                            String idPemilikLaundry = doc.getString("idPemilik");
+
+                            Laundry laundry = doc.toObject(Laundry.class);
+                            laundry.setIdLaundry(idLaundry);
+
+                            if (idPemilik.equals(idPemilikLaundry)){
+                                laundryList.add(laundry);
+                            }
+
+                        }
+                        adapterLaundry.notifyDataSetChanged();
+
+                    }else{
+                        showInfoMessage("Belum ada data laundry");
+                    }
+
+                }else{
+                    showErrorMessage("Terjadi kesalahan,coba lagi nanti");
+                }
+            }
+        });
+    }
 
     public void reloadData(){
         getDataMyLaundry(SharedVariable.userID,adapter,laundryList);
     }
-
 
 
     @Override
