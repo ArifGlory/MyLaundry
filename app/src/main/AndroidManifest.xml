@@ -24,8 +24,15 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:replace="android:icon">
-        <activity android:name=".activity.AddFasilitasActivity"
-            android:label="Tambah Fasilitas"></activity>
+        <activity android:name=".activity.SelectLokasiActivity"></activity>
+
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
+
+        <activity
+            android:name=".activity.AddFasilitasActivity"
+            android:label="Tambah Fasilitas" />
         <activity
             android:name=".activity.FasilitasActivity"
             android:label="Fasilitas" />

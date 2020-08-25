@@ -2,6 +2,8 @@ package myproject.mylaundry.activity;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -32,6 +34,8 @@ import com.google.firebase.storage.UploadTask;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 import myproject.mylaundry.Kelas.Laundry;
@@ -45,7 +49,6 @@ public class UbahDataLaundry extends BaseActivity {
     EditText etNama,etHarga;
     RelativeLayout rlAlamat;
     Uri uri,file;
-    private int PLACE_PICKER_REQUEST = 1;
     static final int RC_PERMISSION_READ_EXTERNAL_STORAGE = 1;
     static final int RC_IMAGE_GALLERY = 2;
     String alamat,latitude,longitude;
@@ -55,6 +58,7 @@ public class UbahDataLaundry extends BaseActivity {
 
     Intent intent;
     Laundry laundry;
+    String TAG_ALAMAT = "getAlamat";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,16 +94,8 @@ public class UbahDataLaundry extends BaseActivity {
         rlAlamat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                PlacePicker.IntentBuilder builder  = new PlacePicker.IntentBuilder();
-                try {
-                    //menjalankan place picker
-                    startActivityForResult(builder.build(UbahDataLaundry.this), PLACE_PICKER_REQUEST);
-
-                } catch (GooglePlayServicesRepairableException e) {
-                    e.printStackTrace();
-                } catch (GooglePlayServicesNotAvailableException e) {
-                    e.printStackTrace();
-                }
+                Intent i = new Intent(getApplicationContext(),SelectLokasiActivity.class);
+                startActivity(i);
             }
         });
         btnSimpan.setOnClickListener(new View.OnClickListener() {
@@ -134,9 +130,10 @@ public class UbahDataLaundry extends BaseActivity {
 
     private void simpanDataTanpaGambar(){
         showLoading();
+        long hrg = Long.parseLong(etHarga.getText().toString());
         ref.document(laundry.getIdLaundry()).update("alamat",alamat);
         ref.document(laundry.getIdLaundry()).update("namaLaundry",etNama.getText().toString());
-        ref.document(laundry.getIdLaundry()).update("hargaPerKg",etHarga.getText().toString());
+        ref.document(laundry.getIdLaundry()).update("hargaPerKg",hrg);
         ref.document(laundry.getIdLaundry()).update("lat",latitude);
         ref.document(laundry.getIdLaundry()).update("lon",longitude).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
@@ -179,10 +176,11 @@ public class UbahDataLaundry extends BaseActivity {
                 //Uri downloadUrl = taskSnapshot.getDownloadUrl();
                 Toast.makeText(UbahDataLaundry.this, "Upload finished!", Toast.LENGTH_SHORT).show();
 
+                long hrg = Long.parseLong(etHarga.getText().toString());
                 ref.document(laundry.getIdLaundry()).update("foto",downloadUrl.toString());
                 ref.document(laundry.getIdLaundry()).update("alamat",alamat);
                 ref.document(laundry.getIdLaundry()).update("namaLaundry",etNama.getText().toString());
-                ref.document(laundry.getIdLaundry()).update("hargaPerKg",etHarga.getText().toString());
+                ref.document(laundry.getIdLaundry()).update("hargaPerKg",hrg);
                 ref.document(laundry.getIdLaundry()).update("lat",latitude);
                 ref.document(laundry.getIdLaundry()).update("lon",longitude).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
@@ -205,30 +203,33 @@ public class UbahDataLaundry extends BaseActivity {
         });
     }
 
+    private String getCompleteAddressString(double LATITUDE, double LONGITUDE) {
+        String strAdd = "";
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+        try {
+            List<Address> addresses = geocoder.getFromLocation(LATITUDE, LONGITUDE, 1);
+            if (addresses != null) {
+                Address returnedAddress = addresses.get(0);
+                StringBuilder strReturnedAddress = new StringBuilder("");
+
+                for (int i = 0; i <= returnedAddress.getMaxAddressLineIndex(); i++) {
+                    strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n");
+                }
+                strAdd = strReturnedAddress.toString();
+                Log.w(TAG_ALAMAT, strReturnedAddress.toString());
+            } else {
+                Log.w(TAG_ALAMAT, "No Address returned!");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.w(TAG_ALAMAT, "Canont get Address!");
+        }
+        return strAdd;
+    }
+
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         //super.onActivityResult(requestCode, resultCode, data);
         // menangkap hasil balikan dari Place Picker, dan menampilkannya pada TextView
-        if (requestCode == PLACE_PICKER_REQUEST) {
-            if (resultCode == RESULT_OK) {
-                Place place = PlacePicker.getPlace(data, this);
-                String toastMsg = String.format(
-                        "Place: %s \n" +
-                                "Alamat: %s \n" +
-                                "Latlng %s \n", place.getName(), place.getAddress(), place.getLatLng().latitude+" "+place.getLatLng().longitude);
-                //tvPlaceAPI.setText(toastMsg);
-
-                tvAlamat.setText(place.getAddress());
-                tvAlamat.setVisibility(View.VISIBLE);
-
-                alamat = (String) place.getAddress();
-                Double lat = place.getLatLng().latitude;
-                Double lon = place.getLatLng().longitude;
-                latitude = ""+lat;
-                longitude = ""+lon;
-                //Toast.makeText(getApplicationContext()," "+toastMsg,Toast.LENGTH_SHORT).show();
-            }
-        }else
-
         if (requestCode == RC_IMAGE_GALLERY && resultCode == RESULT_OK) {
             uri = data.getData();
             ivLaundry.setImageURI(uri);
@@ -251,5 +252,16 @@ public class UbahDataLaundry extends BaseActivity {
         alamat      = laundry.getAlamat();
         latitude    = laundry.getLat();
         longitude   = laundry.getLon();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (SharedVariable.selectedLokasi != null){
+            alamat = getCompleteAddressString(SharedVariable.selectedLokasi.latitude,SharedVariable.selectedLokasi.longitude).toString();
+            tvAlamat.setText(alamat);
+            latitude = ""+SharedVariable.selectedLokasi.latitude;
+            longitude = ""+SharedVariable.selectedLokasi.longitude;
+        }
     }
 }

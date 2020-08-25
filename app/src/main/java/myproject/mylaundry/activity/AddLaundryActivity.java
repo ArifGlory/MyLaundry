@@ -2,6 +2,8 @@ package myproject.mylaundry.activity;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -31,6 +33,8 @@ import com.google.firebase.storage.UploadTask;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
@@ -45,13 +49,13 @@ public class AddLaundryActivity extends BaseActivity {
     EditText etNama,etHarga;
     RelativeLayout rlAlamat;
     Uri uri,file;
-    private int PLACE_PICKER_REQUEST = 1;
     static final int RC_PERMISSION_READ_EXTERNAL_STORAGE = 1;
     static final int RC_IMAGE_GALLERY = 2;
     String alamat,latitude,longitude;
     ImageView ivLaundry;
     TextView tvAlamat;
     Button btnSimpan;
+    String TAG_ALAMAT = "getAlamat";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,17 +86,8 @@ public class AddLaundryActivity extends BaseActivity {
         rlAlamat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                PlacePicker.IntentBuilder builder  = new PlacePicker.IntentBuilder();
-                try {
-                    //menjalankan place picker
-                    startActivityForResult(builder.build(AddLaundryActivity.this), PLACE_PICKER_REQUEST);
-
-                    // check apabila <a title="Solusi Tidak Bisa Download Google Play Services di Android" href="http://www.twoh.co/2014/11/solusi-tidak-bisa-download-google-play-services-di-android/" target="_blank">Google Play Services tidak terinstall</a> di HP
-                } catch (GooglePlayServicesRepairableException e) {
-                    e.printStackTrace();
-                } catch (GooglePlayServicesNotAvailableException e) {
-                    e.printStackTrace();
-                }
+                Intent i = new Intent(getApplicationContext(),SelectLokasiActivity.class);
+                startActivity(i);
             }
         });
         btnSimpan.setOnClickListener(new View.OnClickListener() {
@@ -197,29 +192,33 @@ public class AddLaundryActivity extends BaseActivity {
         ivLaundry.setImageResource(R.drawable.laundry_logo);
     }
 
+    private String getCompleteAddressString(double LATITUDE, double LONGITUDE) {
+        String strAdd = "";
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+        try {
+            List<Address> addresses = geocoder.getFromLocation(LATITUDE, LONGITUDE, 1);
+            if (addresses != null) {
+                Address returnedAddress = addresses.get(0);
+                StringBuilder strReturnedAddress = new StringBuilder("");
+
+                for (int i = 0; i <= returnedAddress.getMaxAddressLineIndex(); i++) {
+                    strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n");
+                }
+                strAdd = strReturnedAddress.toString();
+                Log.w(TAG_ALAMAT, strReturnedAddress.toString());
+            } else {
+                Log.w(TAG_ALAMAT, "No Address returned!");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.w(TAG_ALAMAT, "Canont get Address!");
+        }
+        return strAdd;
+    }
+
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         //super.onActivityResult(requestCode, resultCode, data);
         // menangkap hasil balikan dari Place Picker, dan menampilkannya pada TextView
-        if (requestCode == PLACE_PICKER_REQUEST) {
-            if (resultCode == RESULT_OK) {
-                Place place = PlacePicker.getPlace(data, this);
-                String toastMsg = String.format(
-                        "Place: %s \n" +
-                                "Alamat: %s \n" +
-                                "Latlng %s \n", place.getName(), place.getAddress(), place.getLatLng().latitude+" "+place.getLatLng().longitude);
-                //tvPlaceAPI.setText(toastMsg);
-
-                tvAlamat.setText(place.getAddress());
-                tvAlamat.setVisibility(View.VISIBLE);
-
-                alamat = (String) place.getAddress();
-                Double lat = place.getLatLng().latitude;
-                Double lon = place.getLatLng().longitude;
-                latitude = ""+lat;
-                longitude = ""+lon;
-                //Toast.makeText(getApplicationContext()," "+toastMsg,Toast.LENGTH_SHORT).show();
-            }
-        }else
 
         if (requestCode == RC_IMAGE_GALLERY && resultCode == RESULT_OK) {
             uri = data.getData();
@@ -228,6 +227,17 @@ public class AddLaundryActivity extends BaseActivity {
         else if (requestCode == 100 && resultCode == RESULT_OK){
             uri = file;
             ivLaundry.setImageURI(uri);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (SharedVariable.selectedLokasi != null){
+            alamat = getCompleteAddressString(SharedVariable.selectedLokasi.latitude,SharedVariable.selectedLokasi.longitude).toString();
+            tvAlamat.setText(alamat);
+            latitude = ""+SharedVariable.selectedLokasi.latitude;
+            longitude = ""+SharedVariable.selectedLokasi.longitude;
         }
     }
 }
