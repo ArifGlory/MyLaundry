@@ -24,7 +24,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:replace="android:icon">
-        <activity android:name=".activity.SelectLokasiActivity"></activity>
+        <activity android:name=".activity.ResultCariFasilitasActivity"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name=".activity.CariByFasilitasActivity"
+            android:label="Cari by Fasilitas" />
+        <activity android:name=".activity.SelectLokasiActivity" />
 
         <uses-library
             android:name="org.apache.http.legacy"

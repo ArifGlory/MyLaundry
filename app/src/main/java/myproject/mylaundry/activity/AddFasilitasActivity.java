@@ -139,7 +139,6 @@ public class AddFasilitasActivity extends BaseActivity {
                         Log.d("erorUpload:","erorGambar "+e.toString());
                     }
                 });
-
             }
         });
     }

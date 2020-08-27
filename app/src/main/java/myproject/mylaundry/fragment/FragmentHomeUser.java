@@ -31,6 +31,7 @@ import cn.pedant.SweetAlert.SweetAlertDialog;
 import de.hdodenhof.circleimageview.CircleImageView;
 import myproject.mylaundry.Kelas.SharedVariable;
 import myproject.mylaundry.R;
+import myproject.mylaundry.activity.CariByFasilitasActivity;
 import myproject.mylaundry.activity.ResultActivity;
 import myproject.mylaundry.base.BaseFragment;
 
@@ -139,6 +140,13 @@ public class FragmentHomeUser extends BaseFragment {
 
 
                 dialog.show();
+            }
+        });
+        rlFasilitas.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), CariByFasilitasActivity.class);
+                startActivity(intent);
             }
         });
 

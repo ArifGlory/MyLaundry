@@ -25,6 +25,7 @@ public class BaseActivity extends AppCompatActivity {
     public FirebaseAuth fAuth;
     public FirebaseUser fbUser;
     public CollectionReference ref;
+    public CollectionReference refSecond;
 
     @Override
     public void setContentView(int layoutResID) {
